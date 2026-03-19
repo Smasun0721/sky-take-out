@@ -74,18 +74,42 @@ public class EmployeeController {
 
     //新增员工
     @PostMapping
-    public Result<String> save(@RequestBody EmployeeDTO employeeDTO){
-        log.info("新增员工:{}",employeeDTO);
+    public Result<String> save(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("新增员工:{}", employeeDTO);
         employeeService.save(employeeDTO);
         return Result.success();
     }
 
     //查询员工
     @GetMapping("/page")
-    public  Result<PageResult> page(EmployeePageQueryDTO employeePageQueryDTO){
-        log.info("条件分页查询:{}",employeePageQueryDTO);
-        PageResult pageResult=employeeService.pageQuery(employeePageQueryDTO);
+    public Result<PageResult> page(EmployeePageQueryDTO employeePageQueryDTO) {
+        log.info("条件分页查询:{}", employeePageQueryDTO);
+        PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
         return Result.success(pageResult);
+    }
+
+    //启用或禁用员工
+    @PostMapping("/status/{status}")
+    public Result starOrStop(@PathVariable Integer status, long id) {
+        log.info("启用或禁用员工:{},{}", status, id);
+        employeeService.starOrStop(status, id);
+        return Result.success();
+    }
+
+    //根据id查询员工
+    @GetMapping("/{id}")
+    public Result<Employee> queryById(@PathVariable Integer id) {
+        log.info("根据id查询员工:{}", id);
+        Employee employee = employeeService.queryById(id);
+        return Result.success(employee);
+    }
+
+    //编辑员工
+    @PutMapping
+    public Result update(@RequestBody EmployeeDTO employeeDTO){
+        log.info("编辑员工:{}",employeeDTO);
+        employeeService.update(employeeDTO);
+        return Result.success();
     }
 
 }

@@ -92,4 +92,36 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new PageResult(page.getTotal(),page.getResult());
     }
 
+    //启用或禁用员工
+    @Override
+    public void starOrStop(Integer status, long id) {
+        Employee employee = Employee.builder()
+                .status(status)
+                .id(id)
+                .updateTime(LocalDateTime.now())
+                .updateUser(BaseContext.getCurrentId())
+                .build();
+        employeeMapper.startOrStop(employee);
+    }
+
+    //根据id查询员工
+    @Override
+    public Employee queryById(Integer id) {
+        Employee employee= employeeMapper.queryById(id);
+        if(employee==null){
+            throw new AccountNotFoundException("该用户不存在");
+        }
+        return employee;
+    }
+
+    //编辑员工
+    @Override
+    public void update(EmployeeDTO employeeDTO) {
+        Employee employee=new Employee();
+        BeanUtils.copyProperties(employeeDTO,employee);
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employee.setUpdateTime(LocalDateTime.now());
+        employeeMapper.update(employee);
+    }
+
 }
