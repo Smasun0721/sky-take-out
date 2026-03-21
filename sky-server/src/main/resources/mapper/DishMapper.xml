@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.DishMapper">
+
+    <select id="query" resultType="com.sky.entity.Dish">
+        select * from dish
+                 left join category
+                 ON dish.category_id = category.id
+        <where>
+            <if test="categoryId!=null and categoryId!=''">
+            and category.id=#{categoryId}
+            </if>
+            <if test="name!=null and name!=''">
+            and dish.name like concat('%',#{name},'%')
+            </if>
+            <if test="status!=null">
+            and dish.status=#{status}
+            </if>
+        </where>
+        order by dish.update_time desc
+    </select>
+
+</mapper>
+
