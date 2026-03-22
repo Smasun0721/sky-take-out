@@ -2,14 +2,21 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.entity.SetmealDish;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
+import com.sky.mapper.SetmealDishMapper;
+import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
+import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,28 +32,65 @@ public class DishServiceImpl implements DishService {
     private DishMapper dishMapper;
     @Autowired
     private DishFlavorMapper dishFlavorMapper;
+    @Autowired
+    private SetmealDishMapper setmealDishMapper;
 
     //条件分页查询菜品
     @Override
     public PageResult page(DishPageQueryDTO dishPageQueryDTO) {
         PageHelper.startPage(dishPageQueryDTO.getPage(), dishPageQueryDTO.getPageSize());
-        Page<Dish> page = dishMapper.query(dishPageQueryDTO);
+        Page<DishVO> page = dishMapper.query(dishPageQueryDTO);
         return new PageResult(page.getTotal(), page.getResult());
     }
 
     //新增菜品
     @Override
     public void save(DishDTO dishDTO) {
-        Dish dish=new Dish();
-        BeanUtils.copyProperties(dishDTO,dish);
-         dishMapper.save(dish);
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        dishMapper.save(dish);
 
-         List<DishFlavor> dishFlavors=dishDTO.getFlavors();
-        if(dishDTO.getFlavors()!=null){
+        List<DishFlavor> dishFlavors = dishDTO.getFlavors();
+        if (dishDTO.getFlavors() != null) {
             dishFlavors.forEach(dishFlavor -> {
                 dishFlavor.setDishId(dish.getId());
             });
             dishFlavorMapper.save(dishFlavors);
         }
+    }
+
+    //设置起售、停售状态
+    @Override
+    public void startOrStop(Integer status, long id) {
+        Dish dish = Dish.builder()
+                .status(status)
+                .id(id)
+                .build();
+        dishMapper.startOrStop(dish);
+    }
+
+    //删除菜品
+    @Override
+    public void deleteBatch(List<Long> ids) {
+
+        //1.检查菜品是否为起售状态
+        for (long id : ids) {
+            Dish dish = dishMapper.queryById(id);
+            if (dish.getStatus() == StatusConstant.ENABLE) {
+                throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
+            }
+        }
+
+        //2.检查菜品是否被包含在套餐中
+        List<Long> list= setmealDishMapper.queryByDishIds(ids);
+        if(!list.isEmpty()){
+            throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
+        }
+
+        //3.删除菜品
+        dishMapper.deleteBatch(ids);
+
+        //4.删除菜品对应的口味
+        dishFlavorMapper.deleteBatch(ids);
     }
 }

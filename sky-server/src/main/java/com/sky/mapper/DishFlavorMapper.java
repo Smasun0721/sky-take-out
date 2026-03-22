@@ -10,4 +10,7 @@ public interface DishFlavorMapper {
 
     //新增口味
     void save(List<DishFlavor> dishFlavor);
+
+    void deleteBatch(List<Long> ids);
+
 }

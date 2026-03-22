@@ -3,19 +3,26 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.DishMapper">
 
-    <select id="query" resultType="com.sky.entity.Dish">
-        select * from dish
-                 left join category
-                 ON dish.category_id = category.id
+    <delete id="deleteBatch">
+        delete from dish where id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+            </foreach>
+    </delete>
+
+    <select id="query" resultType="com.sky.vo.DishVO">
+        select dish.*,category.name as categoryName from dish
+        left join category
+        ON dish.category_id = category.id
         <where>
             <if test="categoryId!=null and categoryId!=''">
-            and category.id=#{categoryId}
+                and category.id=#{categoryId}
             </if>
             <if test="name!=null and name!=''">
-            and dish.name like concat('%',#{name},'%')
+                and dish.name like concat('%',#{name},'%')
             </if>
             <if test="status!=null">
-            and dish.status=#{status}
+                and dish.status=#{status}
             </if>
         </where>
         order by dish.update_time desc
