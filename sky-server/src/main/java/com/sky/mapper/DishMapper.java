@@ -26,19 +26,29 @@ public interface DishMapper {
     //条件分页查询菜品
     Page<DishVO> query(DishPageQueryDTO dishPageQueryDTO);
 
+    //新增菜品
     @Insert("insert into dish (name, category_id, price, image, description, status, create_time, update_time, create_user, update_user) " +
             "values (#{name},#{categoryId},#{price},#{image},#{description},#{status},#{createTime},#{updateTime},#{createUser},#{updateUser})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     @AutoFill(value = OperationType.INSERT)
     void save(Dish dish);
 
+    //起售、停售菜品
     @Update("update dish set status=#{status},update_time=#{updateTime},update_user=#{updateUser} where id=#{id}")
     @AutoFill(value = OperationType.UPDATE)
     void startOrStop(Dish dish);
 
+    //通过id查找菜品
     @Select("select * from dish where id=#{id}")
     Dish queryById(long id);
 
-    //批量删除
+    //批量删除菜品
     void deleteBatch(List<Long> ids);
+
+    //修改菜品
+    @Update("update dish set name=#{name}, category_id=#{categoryId}, price=#{price}, image=#{image}, " +
+            "description=#{description}, status=#{status},update_time=#{updateTime}, update_user=#{updateUser} " +
+            "where id=#{id}")
+    @AutoFill(value = OperationType.UPDATE)
+    void update(Dish dish);
 }
