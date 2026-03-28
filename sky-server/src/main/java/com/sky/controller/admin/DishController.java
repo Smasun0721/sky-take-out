@@ -1,10 +1,8 @@
 package com.sky.controller.admin;
 
 
-import com.google.j2objc.annotations.WeakOuter;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
-import com.sky.entity.Dish;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.DishService;
@@ -63,6 +61,14 @@ public class DishController {
         log.info("根据ID查找菜品:{}", id);
         DishVO dishvo = dishService.queryById(id);
         return Result.success(dishvo);
+    }
+
+    //根据分类id查找菜品
+    @GetMapping("/list")
+    public Result<List<DishVO>> queryByCategoryId(long categoryId) {
+        log.info("根据ID查找菜品:{}", categoryId);
+        List<DishVO> dishVOS = dishService.queryByCategoryId(categoryId);
+        return Result.success(dishVOS);
     }
 
     //修改菜品

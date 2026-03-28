@@ -24,4 +24,6 @@ public interface DishService {
     DishVO queryById(long id);
 
     void update(DishDTO dishDTO);
+    //根据分类id查找菜品
+    List<DishVO> queryByCategoryId(long categoryId);
 }
