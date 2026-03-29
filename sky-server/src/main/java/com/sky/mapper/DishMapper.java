@@ -55,4 +55,11 @@ public interface DishMapper {
     //根据分类id查找菜品
     @Select("select * from dish where category_id=#{categortId}")
     List<DishVO> countByCategoryIdVO(long categoryId);
+
+    /**
+     * 动态条件查询菜品
+     * @param dish
+     * @return
+     */
+    List<Dish> list(Dish dish);
 }
