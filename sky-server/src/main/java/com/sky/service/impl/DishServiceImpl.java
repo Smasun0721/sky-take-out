@@ -119,14 +119,15 @@ public class DishServiceImpl implements DishService {
         ArrayList<Long> ids = new ArrayList<>();
         ids.add(dish.getId());
         dishFlavorMapper.deleteBatch(ids);  //删除
-        //为口味赋值菜品id
+
         List<DishFlavor> flavors = dishDTO.getFlavors();
-        for (DishFlavor dishFlavor : flavors) {
-            dishFlavor.setDishId(dish.getId());
+        if(flavors!=null&&!flavors.isEmpty()){
+            //为口味赋值菜品id
+            for (DishFlavor dishFlavor : flavors) {
+                dishFlavor.setDishId(dish.getId());
+            }
+            dishFlavorMapper.save(flavors);
         }
-        dishFlavorMapper.save(flavors);
-
-
     }
 
     //根据分类id查找菜品
