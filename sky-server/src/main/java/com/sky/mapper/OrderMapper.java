@@ -5,6 +5,7 @@ import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper
 public interface OrderMapper {
@@ -41,4 +42,8 @@ public interface OrderMapper {
     //通过id查找订单信息
     @Select("SELECT * from orders where id=#{id}")
     Orders getById(Long id);
+
+    //检测待支付超时订单
+    @Select("select * from orders where status=#{status} and order_time<#{orderTime}")
+    List<Orders> processTimeoutOrder(Integer status, LocalDateTime orderTime);
 }
