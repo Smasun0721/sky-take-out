@@ -1,11 +1,12 @@
 package com.sky.mapper;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
-import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface OrderMapper {
@@ -46,4 +47,19 @@ public interface OrderMapper {
     //检测待支付超时订单
     @Select("select * from orders where status=#{status} and order_time<#{orderTime}")
     List<Orders> processTimeoutOrder(Integer status, LocalDateTime orderTime);
+
+    //通过时间点获取时间段内营业额
+    @Select("select sum(amount) from orders where order_time between #{beginTime} and #{endTime} and status=5")
+    Double getTurnoverByDate(LocalDateTime beginTime, LocalDateTime endTime);
+
+    //根据日期和订单状态查询订单数量
+    Integer getCountByTimeAndStatus(Map<String, Object> map);
+
+    //根据日期查询销量top10
+    @Select("select od.name as name,sum(od.number) as number from order_detail od,orders o " +
+            "where od.order_id = o.id and o.status = 5 " +
+            "group by od.name " +
+            "order by number desc " +
+            "limit 0,10")
+    List<GoodsSalesDTO> getTop10(LocalDateTime beginTime, LocalDateTime endTime);
 }

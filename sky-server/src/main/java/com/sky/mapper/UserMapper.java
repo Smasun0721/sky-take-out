@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
+
 @Mapper
 public interface UserMapper {
 
@@ -21,4 +23,8 @@ public interface UserMapper {
 
     @Select("select * from user where id=#{userId}")
     User getById(Long userId);
+
+    //根据日期获取当前用户数量
+    @Select(("select count(*) from user where create_time < #{time}"))
+    Integer getUserCountByTime(LocalDateTime time);
 }
